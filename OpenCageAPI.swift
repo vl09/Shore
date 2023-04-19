@@ -9,7 +9,7 @@ import Foundation
 import CoreLocation
 
 struct OpenCageAPI {
-    private let apiKey = "7acc3c1325264886bb8166e636ca27e5"
+    private let apiKey = "*******"
     
     func fetchCoordinates(cityName: String, completion: @escaping (Result<CLLocationCoordinate2D, Error>) -> Void) {
         let urlString = "https://api.opencagedata.com/geocode/v1/json?q=\(cityName)&key=\(apiKey)"
