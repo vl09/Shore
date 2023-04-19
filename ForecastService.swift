@@ -9,7 +9,7 @@ import Foundation
 
 class ForecastService: ObservableObject {
     @Published var forecasts: [Forecast] = []
-    private let apiKey = "1281e51407b47e21ad0d70377d5344df" // Replace with your OpenWeatherMap API key
+    private let apiKey = "*****" // Replace with your OpenWeatherMap API key
 
     func fetch(city: City) {
         let urlString = "https://api.openweathermap.org/data/2.5/onecall?lat=\(city.coordinate.latitude)&lon=\(city.coordinate.longitude)&exclude=current,minutely,daily,alerts&appid=\(apiKey)"
