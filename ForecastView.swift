@@ -12,32 +12,26 @@ struct ForecastView: View {
     @ObservedObject var forecastService: ForecastService
     @State private var showFilteredResults = false
     @State private var windForecast: WindForecast?
+    @State private var selectedLocation: CLLocationCoordinate2D?
+    @State private var isPresentingMap = false // Add this state variable
+
 
 
     
     var body: some View {
         VStack {
-            Text(city.name)
-                .font(.title)
-                .padding(.bottom)
-            
-            Toggle(isOn: $showFilteredResults) {
-                Text("Show Filtered Results")
-            }
-            .padding(.horizontal)
-            
-            List {
-                if showFilteredResults {
-                    ForEach(filteredForecasts()) { forecast in
-                        ForecastRow(forecast: forecast)
+                    if let selectedLocation = selectedLocation {
+                        Text("Selected location: \(selectedLocation.latitude), \(selectedLocation.longitude)")
+                    } else {
+                        Text("Tap on the map to select a location")
                     }
-                } else {
-                    ForEach(forecastService.forecasts) { forecast in
-                        ForecastRow(forecast: forecast)
+                    
+                    Button(action: {
+                        self.isPresentingMap = true
+                    }) {
+                        Text("Select location")
                     }
                 }
-            }
-        }
         .onAppear {
             forecastService.getWindForecast(for: city) { result in
                 switch result {
@@ -50,24 +44,27 @@ struct ForecastView: View {
                 }
             }
         }
-
-
-
+        .sheet(isPresented: $isPresentingMap) {
+                    MapView(onLocationSelected: { coordinate in
+                        self.selectedLocation = coordinate
+                        self.isPresentingMap = false
+                    })
+                }
     }
     
     private func filteredForecasts() -> [Forecast] {
-        if let windForecast = windForecast {
-            return windForecast.forecasts.filter { forecast in
-                if let angle1 = city.angle1, let angle2 = city.angle2 {
-                    return AngleCalculator.isWindDirectionWithinAngles(windDirection: forecast.direction, angle1: angle1, angle2: angle2)
-                } else {
-                    return false
+            if let windForecast = windForecast {
+                return windForecast.forecasts.filter { forecast in
+                    if let angle1 = city.angle1, let angle2 = city.angle2 {
+                        return AngleCalculator.isWindDirectionWithinAngles(windDirection: forecast.direction, angle1: angle1, angle2: angle2)
+                    } else {
+                        return false
+                    }
                 }
+            } else {
+                return []
             }
-        } else {
-            return []
         }
-    }
 }
 
 struct ForecastRow: View {
