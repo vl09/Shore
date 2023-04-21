@@ -86,6 +86,7 @@ struct ContentView_Previews: PreviewProvider {
     }
 }
 
+
 struct RedLineView: WKInterfaceObjectRepresentable {
     typealias WKInterfaceObjectRepresentableType = WKInterfaceImage
     
@@ -93,10 +94,10 @@ struct RedLineView: WKInterfaceObjectRepresentable {
     let shouldRotate: Bool
     
     func makeWKInterfaceObject(context: WKInterfaceObjectRepresentableContext<RedLineView>) -> WKInterfaceImage {
-        let image = WKInterfaceImage()
-        image.setImage(UIImage(systemName: "arrow.up")!)
+        let image = WKInterfaceImage(imageName: "arrow.up")
         return image
     }
+
     
     func updateWKInterfaceObject(_ image: WKInterfaceImage, context: WKInterfaceObjectRepresentableContext<RedLineView>) {
         let initialRotation = bearing(
@@ -105,13 +106,17 @@ struct RedLineView: WKInterfaceObjectRepresentable {
         )
         image.setTintColor(.red)
         image.setRotaryEncoderValue(initialRotation, animated: true)
-        image.addRotaryEncoder(
-            with: { (value: Float, finalValue: Float, rotated: Bool, click: Bool) in
-                if rotated {
-                    image.setRotaryEncoderValue(Double(value), animated: false)
-                }
-            }
+        let properties = WKRotaryEncoder.Property(
+            minValue: 0,
+            maxValue: 360,
+            step: 1,
+            initialValue: initialRotation,
+            continuous: shouldRotate,
+            clockwise: true,
+            isWrapped: true
         )
+        image.setRotaryEncoderProperties(properties)
+        image.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(pointSize: UIFont.preferredFont(forTextStyle: .body).pointSize, weight: .bold))
     }
     
     private func bearing(from: CLLocationCoordinate2D, to: CLLocationCoordinate2D) -> Double {
